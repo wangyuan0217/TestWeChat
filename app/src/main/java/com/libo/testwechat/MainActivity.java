@@ -25,5 +25,9 @@ public class MainActivity extends Activity {
 
     public void open(View view) {
         Utils.openAccessibilitySettings(this);
+
+//        RootShellCmd.simulateKey(500, 1570);
+
     }
+
 }

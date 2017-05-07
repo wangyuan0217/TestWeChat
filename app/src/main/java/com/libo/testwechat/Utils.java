@@ -10,9 +10,6 @@ import android.util.Log;
 
 import static android.content.ContentValues.TAG;
 
-/**
- * Created by Administrator on 2017/4/27.
- */
 
 public class Utils {
 
@@ -33,6 +30,18 @@ public class Utils {
     }
 
     public static int getScreenHeight(Service service) {
+        DisplayMetrics dm = new DisplayMetrics();
+        dm = service.getResources().getDisplayMetrics();
+        return dm.heightPixels;
+    }
+
+    public static int getScreenWidth(Context service) {
+        DisplayMetrics dm = new DisplayMetrics();
+        dm = service.getResources().getDisplayMetrics();
+        return dm.widthPixels;
+    }
+
+    public static int getScreenHeight(Context service) {
         DisplayMetrics dm = new DisplayMetrics();
         dm = service.getResources().getDisplayMetrics();
         return dm.heightPixels;

@@ -43,6 +43,7 @@ public class AutoReplyService extends AccessibilityService {
                 if (fill(REPLY_TEXT)) {
                     send();
                     back2Me();
+//                    RootShellCmd.simulateKey(500, 1570);
                     hasAction = false;
                 }
                 break;
