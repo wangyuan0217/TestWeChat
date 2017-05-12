@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@mipmap/aa"
+    android:keepScreenOn="true"
+    tools:context="com.libo.testwechat.HomeActivity">
+
+    <RelativeLayout
+        android:id="@+id/layout_error"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        tools:visibility="visible">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="30dp"
+            android:text="状态异常, 请先开启无障碍服务"
+            android:textColor="#FF0000"
+            android:textSize="26sp"/>
+
+        <Button
+            android:id="@+id/open"
+            android:layout_width="200dp"
+            android:layout_height="50dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="76dp"
+            android:background="#FFA07A"
+            android:onClick="open"
+            android:text="开启无障碍服务"
+            android:textColor="#FFFFFF"/>
+    </RelativeLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="160dp"
+        android:text="欢迎使用！"
+        android:textSize="34sp"/>
+
+    <LinearLayout
+        android:id="@+id/layout_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:gravity="center">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="20dp"
+            android:text="服务开关:"
+            android:textColor="#000000"
+            android:textSize="20sp"/>
+
+        <Switch
+            android:id="@+id/switchON_off"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="false"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/layout_switch"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="25dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="当前余额："
+            android:textColor="#000000"
+            android:textSize="18sp"/>
+
+        <TextView
+            android:id="@+id/balance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textColor="#FF0000"
+            android:textSize="22sp"/>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/logout"
+        android:layout_width="220dp"
+        android:layout_height="40dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="50dp"
+        android:layout_marginTop="35dp"
+        android:onClick="logout"
+        android:text="退出"/>
+
+    <Button
+        android:id="@+id/refresh"
+        android:layout_width="220dp"
+        android:layout_height="40dp"
+        android:layout_above="@id/logout"
+        android:layout_centerHorizontal="true"
+        android:onClick="refresh"
+        android:text="刷新状态"/>
+</RelativeLayout>

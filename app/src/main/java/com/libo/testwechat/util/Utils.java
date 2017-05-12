@@ -1,4 +1,4 @@
-package com.libo.testwechat;
+package com.libo.testwechat.util;
 
 import android.app.KeyguardManager;
 import android.app.Service;
@@ -12,6 +12,48 @@ import static android.content.ContentValues.TAG;
 
 
 public class Utils {
+
+    public static String findLastWord(String content) {
+        StringBuilder returnStr = new StringBuilder();
+        int size = content.length();
+        for (int i = 0; i < size; i++) {
+            try {
+                int temp = Integer.parseInt(content.charAt(i) + "");
+                returnStr.append(temp);
+            } catch (Exception e) {
+
+            }
+        }
+        int length = returnStr.length();
+        if (length < 3)
+            return "";
+        return returnStr.toString().substring(length - 2, length);
+    }
+
+    public static String findBill(String key, String content) {
+        StringBuilder returnStr = new StringBuilder();
+        int lengthKey = key.length();
+        int contentSize = content.length();
+        if (content.contains(key)) {
+            int next = content.indexOf(key) + lengthKey;
+            boolean isFirst = true;
+            for (int i = next; i < contentSize; i++) {
+                try {
+                    int temp;
+                    temp = Integer.parseInt(content.charAt(i) + "");
+                    returnStr.append(temp);
+                    isFirst = false; //只要遇到能强转成功则
+                } catch (Exception e) {
+                    if (isFirst) {
+                        isFirst = false;
+                        continue;
+                    }
+                    return returnStr.toString();
+                }
+            }
+        }
+        return returnStr.toString();
+    }
 
     /**
      * 系统是否在锁屏状态
