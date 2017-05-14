@@ -16,7 +16,6 @@ import com.google.gson.reflect.TypeToken;
 import com.libo.testwechat.entity.UserInfo;
 import com.libo.testwechat.http.Apis;
 import com.libo.testwechat.http.MyCallback;
-import com.libo.testwechat.util.AudioPlayer;
 import com.libo.testwechat.util.PreferenceUtil;
 import com.libo.testwechat.util.Utils;
 
@@ -44,9 +43,9 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
         findViewById(R.id.open).setVisibility(Utils.isAccessibilitySettingsOn(this) ? View.GONE : View.VISIBLE);
-        int code = PreferenceUtil.getInstance().getInt(Constant.CURRENT, 0);
-        long time = PreferenceUtil.getInstance().getLong(Constant.TIME, 0);
-        if (System.currentTimeMillis() - time < 3000) {
+        if (PreferenceUtil.getInstance().getBoolean(Constant.NEED_SOUND, false)) {
+            PreferenceUtil.getInstance().put(Constant.NEED_SOUND, false);
+            int code = PreferenceUtil.getInstance().getInt(Constant.CURRENT, 0);
             if (code == 666) {
                 mVibrator.vibrate(1500);
                 Toast.makeText(this, PreferenceUtil.getInstance().getString(Constant.CURRENT_TIP, ""), Toast.LENGTH_LONG).show();

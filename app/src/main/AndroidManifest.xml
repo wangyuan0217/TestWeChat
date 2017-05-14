@@ -57,7 +57,10 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".HomeActivity">
+        <activity
+            android:name=".HomeActivity"
+            android:exported="true"
+            android:launchMode="singleTask">
         </activity>
     </application>
 

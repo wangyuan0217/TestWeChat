@@ -7,6 +7,7 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -36,15 +37,20 @@ public class AutoReplyService extends AccessibilityService {
     public void onAccessibilityEvent(final AccessibilityEvent event) {
         switch (event.getEventType()) {
             case AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED:// 通知栏事件
-                if (!App.getInstance().isLogin()) break;
-                if (!getSharedPreferences().getString(Constant.STATUS, "").equals("1")) break;
                 List<CharSequence> texts = event.getText();
                 if (texts.isEmpty()) break;
                 for (CharSequence text : texts) {
                     if (TextUtils.isEmpty(text.toString())) break;
+
+                    Intent intent = new Intent("new_message");
+                    intent.putExtra("msg", "收到新消息：" + text.toString());
+                    sendBroadcast(intent);
+
+                    if (!App.getInstance().isLogin()) break;
+                    if (!getSharedPreferences().getString(Constant.STATUS, "").equals("1")) break;
+
 //                    String key = getSharedPreferences().getString(Constant.KEY, "");
 //                    if (TextUtils.isEmpty(key)) break;
-                    System.out.println(text.toString());
                     if (text.toString().contains("近 10 期") && text.toString().contains("----")) {
                         //提交开奖结果
                         System.out.println("======" + text.toString());
@@ -67,9 +73,7 @@ public class AutoReplyService extends AccessibilityService {
                 String className = event.getClassName().toString();
                 if (!MM_LAUNCHERUI.equals(className)) break;
 
-
                 refreshUserInfo();
-
 
 //                if (fill(REPLY_TEXT)) {
 //                    send();
@@ -77,7 +81,6 @@ public class AutoReplyService extends AccessibilityService {
 ////                    RootShellCmd.simulateKey(500, 1570);
 //                    hasAction = false;
 //                }
-
                 break;
         }
 
@@ -162,14 +165,19 @@ public class AutoReplyService extends AccessibilityService {
     }
 
     public void back2Me() {
-        Intent intent = getPackageManager().getLaunchIntentForPackage("com.libo.testwechat");
-        intent.putExtra("autoLoginAction", true);
-        if (intent != null)
+        try {
+            Intent intent = new Intent(Intent.ACTION_MAIN);
+            intent.addCategory(Intent.CATEGORY_LAUNCHER);
+            ComponentName cn = new ComponentName("com.libo.testwechat", "com.libo.testwechat.HomeActivity");
+            intent.setComponent(cn);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
-//        Intent home = new Intent(Intent.ACTION_MAIN);
-//        home.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//        home.addCategory(Intent.CATEGORY_HOME);
-//        startActivity(home);
+        } catch (Exception e) {
+            Intent intent = getPackageManager().getLaunchIntentForPackage("com.libo.testwechat");
+            intent.putExtra("autoLoginAction", true);
+            if (intent != null)
+                startActivity(intent);
+        }
     }
 
     private void wakeAndUnlock() {
@@ -260,6 +268,7 @@ public class AutoReplyService extends AccessibilityService {
             @Override
             public void responeData(String body, JSONObject json) {
                 getSharedPreferences().edit().putString(Constant.BALANCE, bill)
+                        .putBoolean(Constant.NEED_SOUND, false)
                         .commit();
                 start();
             }
@@ -271,7 +280,7 @@ public class AutoReplyService extends AccessibilityService {
                     getSharedPreferences().edit()
                             .putInt(Constant.CURRENT, responseStatus)
                             .putString(Constant.CURRENT_TIP, errMsg)
-                            .putLong(Constant.TIME, System.currentTimeMillis())
+                            .putBoolean(Constant.NEED_SOUND, true)
                             .commit();
                 }
                 back2Me();

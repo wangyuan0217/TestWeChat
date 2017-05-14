@@ -3,8 +3,11 @@ package com.libo.testwechat;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.text.TextUtils;
@@ -26,8 +29,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class HomeActivity extends Activity implements Switch.OnCheckedChangeListener {
+    private TextView mMessages;
     private Switch mSwitch;
     private Vibrator mVibrator;
+    private MessageReceiver mReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,20 +41,28 @@ public class HomeActivity extends Activity implements Switch.OnCheckedChangeList
         //应用运行时，保持屏幕高亮，不锁屏
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         mVibrator = (Vibrator) getApplicationContext().getSystemService(Service.VIBRATOR_SERVICE);
+        mMessages = (TextView) findViewById(R.id.message);
         mSwitch = (Switch) findViewById(R.id.switchON_off);
         mSwitch.setOnCheckedChangeListener(this);
         mSwitch.setChecked(PreferenceUtil.getInstance().getString(Constant.STATUS, "").equals("1"));
-
     }
 
     @Override
     protected void onResume() {
+        IntentFilter filter = new IntentFilter("new_message");
+        if (mReceiver == null)
+            mReceiver = new MessageReceiver();
+        //注册BroadcastReceiver
+        registerReceiver(mReceiver, filter);
         super.onResume();
+
+        App.getInstance().setLogin(true);
+
         findViewById(R.id.layout_error).setVisibility(Utils.isAccessibilitySettingsOn(this) ? View.GONE : View.VISIBLE);
         ((TextView) findViewById(R.id.balance)).setText(PreferenceUtil.getInstance().getString(Constant.BALANCE, "0"));
-        int code = PreferenceUtil.getInstance().getInt(Constant.CURRENT, 0);
-        long time = PreferenceUtil.getInstance().getLong(Constant.TIME, 0);
-        if (System.currentTimeMillis() - time < 2000) {
+        if (PreferenceUtil.getInstance().getBoolean(Constant.NEED_SOUND, false)) {
+            PreferenceUtil.getInstance().put(Constant.NEED_SOUND, false);
+            int code = PreferenceUtil.getInstance().getInt(Constant.CURRENT, 0);
             if (code == 666) {
                 mVibrator.vibrate(new long[]{100, 5000}, 0);
                 showAlertDialog(PreferenceUtil.getInstance().getString(Constant.CURRENT_TIP, ""));
@@ -69,10 +82,10 @@ public class HomeActivity extends Activity implements Switch.OnCheckedChangeList
             super.run();
             while (true) {
                 if (flag) {
-                    AudioPlayer.getInstance().playMusic();
                     try {
+                        AudioPlayer.getInstance().playMusic();
                         Thread.sleep(1200);
-                    } catch (InterruptedException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
@@ -83,59 +96,30 @@ public class HomeActivity extends Activity implements Switch.OnCheckedChangeList
     private PlayThread mPlayThread;
 
     public void showAlertDialog(String message) {
-        if (mPlayThread == null)
-            mPlayThread = new PlayThread();
-        mPlayThread.start();
+        try {
+            if (mPlayThread == null)
+                mPlayThread = new PlayThread();
+            if (!mPlayThread.isAlive())
+                mPlayThread.start();
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(HomeActivity.this);
-        builder.setTitle("提示");
-        builder.setMessage(message);
-        builder.setCancelable(false);
-        builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                mPlayThread.stopTask();
-                if (mVibrator != null)
-                    mVibrator.cancel();
-            }
+            AlertDialog.Builder builder = new AlertDialog.Builder(HomeActivity.this);
+            builder.setTitle("提示");
+            builder.setMessage(message);
+            builder.setCancelable(false);
+            builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                    mPlayThread.stopTask();
+                    if (mVibrator != null)
+                        mVibrator.cancel();
+                }
 
-        });
-        builder.create().show();
-    }
+            });
+            builder.create().show();
+        } catch (Exception e) {
 
-    protected void dialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(HomeActivity.this);
-        builder.setMessage("确认退出吗？");
-        builder.setTitle("提示");
-        builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                finish();
-            }
-
-        });
-        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-
-        });
-        builder.create().show();
-    }
-
-    /**
-     * 屏蔽返回键
-     **/
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            dialog();
-            return true;
         }
-        return super.onKeyDown(keyCode, event);
     }
 
     public void open(View view) {
@@ -237,5 +221,60 @@ public class HomeActivity extends Activity implements Switch.OnCheckedChangeList
                 Toast.makeText(App.getInstance(), "异常", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+
+    class MessageReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context arg0, Intent arg1) {
+            String action = arg1.getAction();
+            if (action.equals("new_message")) {
+                String msg = arg1.getStringExtra("msg");
+                mMessages.setText(msg);
+            }
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        //注销BroadcastReceiver
+        if (null != mReceiver)
+            unregisterReceiver(mReceiver);
+        super.onPause();
+    }
+
+    protected void dialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(HomeActivity.this);
+        builder.setMessage("确认退出吗？");
+        builder.setTitle("提示");
+        builder.setPositiveButton("确认", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                finish();
+            }
+
+        });
+        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+
+        });
+        builder.create().show();
+    }
+
+    /**
+     * 屏蔽返回键
+     **/
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            dialog();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 }

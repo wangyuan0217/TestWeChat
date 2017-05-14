@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">TestWeChat</string>
-    <string name="accessibility_description">autoreply_service</string>
+    <string name="accessibility_description">for wechat</string>
 </resources>
