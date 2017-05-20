@@ -55,11 +55,11 @@ public class AutoReplyService extends AccessibilityService {
                             && text.toString().contains("期")
                             && text.toString().contains("----")) {
                         //提交开奖结果
-                        end(text.toString());
                         hasAction = true;
                         count++;
                         if (count == 2)
                             openWechatByNotification(event);
+                        end(text.toString());
 
                     } else if (text.toString().contains("在线")
                             && text.toString().contains("总分")
@@ -244,10 +244,9 @@ public class AutoReplyService extends AccessibilityService {
                 for (int i = list.size() - 1; i > -1; i--) {
                     AccessibilityNodeInfo lastNode = list.get(i);
                     String str = lastNode.getText().toString();
-                    if (str.contains("总分")
-                            && str.contains("在线")
-                            && str.contains("欢迎你")) {
-                        return str;
+                    if (str.contains("总分") && str.contains("在线") && str.contains("欢迎你")) {
+                        returnStr = str;
+                        break;
                     }
                 }
             }
@@ -296,7 +295,10 @@ public class AutoReplyService extends AccessibilityService {
         }
         String lastMessage = findLastChatMessage();
         System.out.println("======lastMsg====" + lastMessage);
-        if (TextUtils.isEmpty(lastMessage)) return;
+        if (TextUtils.isEmpty(lastMessage)) {
+            back2MeRightNow();
+            return;
+        }
         final String bill = Utils.findBill(billName, lastMessage);
         System.out.println("=======bill====" + bill);
         Apis.getInstance().postBill(uid, bill, new MyCallback() {
@@ -361,16 +363,16 @@ public class AutoReplyService extends AccessibilityService {
         Apis.getInstance().end(uid, phase, last, new MyCallback() {
             @Override
             public void responeData(String body, JSONObject json) {
-                hasAction = false;
-                back2Me();
+//                hasAction = false;
+//                back2Me();
             }
 
             @Override
             public void responeDataFail(int responseStatus, String errMsg) {
-                hasAction = false;
+//                hasAction = false;
                 if (responseStatus == 400) {
                 }
-                back2Me();
+//                back2Me();
             }
         });
     }
