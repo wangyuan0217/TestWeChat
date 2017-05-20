@@ -8,13 +8,18 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,7 +34,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class HomeActivity extends Activity implements Switch.OnCheckedChangeListener {
-    private TextView mMessages;
+    private TextView mMessages, mWelcome;
     private Switch mSwitch;
     private Vibrator mVibrator;
     private MessageReceiver mReceiver;
@@ -42,9 +47,16 @@ public class HomeActivity extends Activity implements Switch.OnCheckedChangeList
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         mVibrator = (Vibrator) getApplicationContext().getSystemService(Service.VIBRATOR_SERVICE);
         mMessages = (TextView) findViewById(R.id.message);
+        mWelcome = (TextView) findViewById(R.id.welcome);
         mSwitch = (Switch) findViewById(R.id.switchON_off);
         mSwitch.setOnCheckedChangeListener(this);
         mSwitch.setChecked(PreferenceUtil.getInstance().getString(Constant.STATUS, "").equals("1"));
+
+        String uname = PreferenceUtil.getInstance().getString(Constant.USERNAME, "");
+        SpannableStringBuilder builder = new SpannableStringBuilder("欢迎" + uname + "使用！");
+        ForegroundColorSpan redSpan = new ForegroundColorSpan(Color.RED);
+        builder.setSpan(redSpan, 2, 2 + uname.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        mWelcome.setText(builder);
     }
 
     @Override
@@ -208,8 +220,11 @@ public class HomeActivity extends Activity implements Switch.OnCheckedChangeList
                     PreferenceUtil.getInstance().put(Constant.BILL_NAME, jsonObject.optString("billname"));
                     PreferenceUtil.getInstance().put(Constant.STATUS, jsonObject.optString("status"));
                     PreferenceUtil.getInstance().put(Constant.BALANCE, jsonObject.optString("balance"));
+                    PreferenceUtil.getInstance().put(Constant.MESSAGE, jsonObject.optString("message"));
                     mSwitch.setChecked("1".equals(jsonObject.optString("status")));
                     ((TextView) findViewById(R.id.balance)).setText(jsonObject.optString("balance"));
+                    PreferenceUtil.getInstance().put(Constant.USERNAME, jsonObject.optString("user_name"));
+                    Toast.makeText(HomeActivity.this, "刷新成功", Toast.LENGTH_SHORT).show();
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -264,6 +279,69 @@ public class HomeActivity extends Activity implements Switch.OnCheckedChangeList
 
         });
         builder.create().show();
+    }
+
+    public void billList(View view) {
+        Intent intent = new Intent(this, BillListActivity.class);
+        startActivity(intent);
+    }
+
+    public void edit(View view) {
+        final EditText editText = new EditText(this);
+        editText.setHeight(180);
+        editText.setText(PreferenceUtil.getInstance().getString(Constant.MESSAGE, ""));
+        new AlertDialog.Builder(this)
+                .setTitle("修改下注信息")
+                .setView(editText)
+                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (TextUtils.isEmpty(editText.getText().toString().trim())) {
+                            Toast.makeText(HomeActivity.this, "下注信息不能为空", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        String uid = PreferenceUtil.getInstance().getString(Constant.UID, "");
+                        Apis.getInstance().editMessage(uid, editText.getText().toString(), new MyCallback() {
+                            @Override
+                            public void responeData(String body, JSONObject json) {
+                                Toast.makeText(HomeActivity.this, json.optString("message"), Toast.LENGTH_SHORT).show();
+                                PreferenceUtil.getInstance().put(Constant.MESSAGE, editText.getText().toString());
+                            }
+
+                            @Override
+                            public void responeDataFail(int responseStatus, String errMsg) {
+                                Toast.makeText(HomeActivity.this, errMsg, Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                })
+                .show();
+    }
+
+    public void sendChat(View view) {
+        final EditText editText = new EditText(this);
+        editText.setHeight(180);
+        editText.setHint("请输入内容");
+        new AlertDialog.Builder(this)
+                .setTitle("发送消息")
+                .setView(editText)
+                .setNegativeButton("取消", null)
+                .setPositiveButton("发送", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (TextUtils.isEmpty(editText.getText().toString().trim())) {
+                            Toast.makeText(HomeActivity.this, "发送内容不能为空", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        PreferenceUtil.getInstance().put(Constant.MESSAGE_FOR_WECHAT, editText.getText().toString());
+                    }
+                })
+                .show();
+    }
+
+    public void history(View view) {
+        Intent intent = new Intent(this, HistoryActivity.class);
+        startActivity(intent);
     }
 
     /**

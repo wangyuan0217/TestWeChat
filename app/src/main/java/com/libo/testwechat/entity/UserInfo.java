@@ -31,9 +31,18 @@ public class UserInfo {
     private String limit_loss;
     private String logic_template_id;
     private String status;
+    private String message;
     private String time;
     private String token;
     private String key;
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
 
     public String getId() {
         return id;

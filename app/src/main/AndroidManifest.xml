@@ -62,6 +62,10 @@
             android:exported="true"
             android:launchMode="singleTask">
         </activity>
+        <activity android:name=".BillListActivity">
+        </activity>
+        <activity android:name=".HistoryActivity">
+        </activity>
     </application>
 
 </manifest>

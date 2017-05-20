@@ -32,6 +32,8 @@ import static com.libo.testwechat.Constant.PROJECT;
 public class AutoReplyService extends AccessibilityService {
     private final static String MM_LAUNCHERUI = "com.tencent.mm.ui.LauncherUI";
     boolean hasAction = false;
+    boolean hasActionForSend = false;
+    int count = 0;
 
     @Override
     public void onAccessibilityEvent(final AccessibilityEvent event) {
@@ -49,19 +51,29 @@ public class AutoReplyService extends AccessibilityService {
                     if (!App.getInstance().isLogin()) break;
                     if (!getSharedPreferences().getString(Constant.STATUS, "").equals("1")) break;
 
-//                    String key = getSharedPreferences().getString(Constant.KEY, "");
-//                    if (TextUtils.isEmpty(key)) break;
-                    if (text.toString().contains("近 10 期") && text.toString().contains("----")) {
+                    if (text.toString().contains("近")
+                            && text.toString().contains("期")
+                            && text.toString().contains("----")) {
                         //提交开奖结果
-                        System.out.println("======" + text.toString());
                         end(text.toString());
-                    }
-                    // TODO: 2017/5/11
-                    if (text.toString().contains("风云会欢迎你") && text.toString().contains("在线")) {
-//                        if (text.toString().contains(key)) {
+                        hasAction = true;
+                        count++;
+                        if (count == 2)
+                            openWechatByNotification(event);
+
+                    } else if (text.toString().contains("在线")
+                            && text.toString().contains("总分")
+                            && text.toString().contains("欢迎你")) {
+                        //查账单-并判断是否下注进行下注
+                        hasAction = true;
+                        count++;
+                        if (count == 2)
+                            openWechatByNotification(event);
+                    } else if (!TextUtils.isEmpty(getSharedPreferences().getString(Constant.MESSAGE_FOR_WECHAT, ""))) {
                         if (Utils.isScreenLocked(this))
                             wakeAndUnlock();
                         hasAction = true;
+                        hasActionForSend = true;
                         openWechatByNotification(event);
                     }
                 }
@@ -73,14 +85,24 @@ public class AutoReplyService extends AccessibilityService {
                 String className = event.getClassName().toString();
                 if (!MM_LAUNCHERUI.equals(className)) break;
 
-                refreshUserInfo();
+                if (hasActionForSend) {
+                    if (fill(getSharedPreferences().getString(Constant.MESSAGE_FOR_WECHAT, "空"))) {
+                        getSharedPreferences().edit().putString(Constant.MESSAGE_FOR_WECHAT, "").commit();
+                        send();
 
-//                if (fill(REPLY_TEXT)) {
-//                    send();
-//                    back2Me();
-////                    RootShellCmd.simulateKey(500, 1570);
-//                    hasAction = false;
-//                }
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+                        back2MeRightNow();
+                        hasAction = false;
+                        hasActionForSend = false;
+                    }
+                } else {
+                    refreshUserInfo();
+                }
                 break;
         }
 
@@ -115,6 +137,7 @@ public class AutoReplyService extends AccessibilityService {
     }
 
     private void openWechatByNotification(AccessibilityEvent event) {
+        count = 0;
         if (event.getParcelableData() != null
                 && event.getParcelableData() instanceof Notification) {
             Notification notification = (Notification) event
@@ -166,6 +189,16 @@ public class AutoReplyService extends AccessibilityService {
 
     public void back2Me() {
         try {
+            Thread.sleep(12000);
+            back2MeRightNow();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            back2MeRightNow();
+        }
+    }
+
+    public void back2MeRightNow() {
+        try {
             Intent intent = new Intent(Intent.ACTION_MAIN);
             intent.addCategory(Intent.CATEGORY_LAUNCHER);
             ComponentName cn = new ComponentName("com.libo.testwechat", "com.libo.testwechat.HomeActivity");
@@ -211,9 +244,10 @@ public class AutoReplyService extends AccessibilityService {
                 for (int i = list.size() - 1; i > -1; i--) {
                     AccessibilityNodeInfo lastNode = list.get(i);
                     String str = lastNode.getText().toString();
-                    System.out.println("====判断====" + (str.contains("风云会欢迎你") && str.contains("在线")));
-                    if (str.contains("风云会欢迎你") && str.contains("在线")) {
-                        returnStr = str;
+                    if (str.contains("总分")
+                            && str.contains("在线")
+                            && str.contains("欢迎你")) {
+                        return str;
                     }
                 }
             }
@@ -262,6 +296,7 @@ public class AutoReplyService extends AccessibilityService {
         }
         String lastMessage = findLastChatMessage();
         System.out.println("======lastMsg====" + lastMessage);
+        if (TextUtils.isEmpty(lastMessage)) return;
         final String bill = Utils.findBill(billName, lastMessage);
         System.out.println("=======bill====" + bill);
         Apis.getInstance().postBill(uid, bill, new MyCallback() {
@@ -320,8 +355,10 @@ public class AutoReplyService extends AccessibilityService {
         String uid = PreferenceUtil.getInstance().getString(Constant.UID, "");
         if (TextUtils.isEmpty(uid)) return;
         String last = Utils.findLastWord(msg);
+        String phase = Utils.findPhase(msg);
+        System.out.println("==期==phase" + phase);
         System.out.println("======last" + last);
-        Apis.getInstance().end(uid, last, new MyCallback() {
+        Apis.getInstance().end(uid, phase, last, new MyCallback() {
             @Override
             public void responeData(String body, JSONObject json) {
                 hasAction = false;

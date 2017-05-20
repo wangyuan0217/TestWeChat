@@ -47,43 +47,72 @@
             android:padding="15dp"/>
     </ScrollView>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <Button
+        android:id="@+id/logout"
+        android:layout_width="220dp"
+        android:layout_height="40dp"
+        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="160dp"
-        android:text="欢迎使用！"
-        android:textSize="34sp"/>
+        android:layout_marginBottom="15dp"
+        android:onClick="logout"
+        android:text="退出"/>
+
+    <Button
+        android:id="@+id/refresh"
+        android:layout_width="220dp"
+        android:layout_height="40dp"
+        android:layout_above="@id/logout"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="15dp"
+        android:onClick="refresh"
+        android:text="刷新状态"/>
+
+    <Button
+        android:id="@+id/bill"
+        android:layout_width="220dp"
+        android:layout_height="40dp"
+        android:layout_above="@id/refresh"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="15dp"
+        android:onClick="billList"
+        android:text="账单明细"/>
+
+    <Button
+        android:id="@+id/edit"
+        android:layout_width="220dp"
+        android:layout_height="40dp"
+        android:layout_above="@id/bill"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="15dp"
+        android:onClick="edit"
+        android:text="修改下注信息"/>
+
+    <Button
+        android:id="@+id/sendChat"
+        android:layout_width="220dp"
+        android:layout_height="40dp"
+        android:layout_above="@id/edit"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="15dp"
+        android:onClick="sendChat"
+        android:text="发送微信消息"/>
+    <Button
+        android:id="@+id/history"
+        android:layout_width="220dp"
+        android:layout_height="40dp"
+        android:layout_above="@id/sendChat"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="15dp"
+        android:onClick="history"
+        android:text="历史开奖记录"/>
 
     <LinearLayout
-        android:id="@+id/layout_switch"
+        android:id="@+id/layout_money"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:gravity="center">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="20dp"
-            android:text="服务开关:"
-            android:textColor="#000000"
-            android:textSize="20sp"/>
-
-        <Switch
-            android:id="@+id/switchON_off"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="false"/>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/layout_switch"
+        android:layout_above="@id/history"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="25dp"
+        android:layout_marginBottom="25dp"
         android:orientation="horizontal">
 
         <TextView
@@ -102,23 +131,38 @@
             android:textSize="22sp"/>
     </LinearLayout>
 
-    <Button
-        android:id="@+id/logout"
-        android:layout_width="220dp"
-        android:layout_height="40dp"
-        android:layout_alignParentBottom="true"
+    <LinearLayout
+        android:id="@+id/layout_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/layout_money"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="50dp"
-        android:layout_marginTop="35dp"
-        android:onClick="logout"
-        android:text="退出"/>
+        android:layout_marginBottom="20dp"
+        android:gravity="center">
 
-    <Button
-        android:id="@+id/refresh"
-        android:layout_width="220dp"
-        android:layout_height="40dp"
-        android:layout_above="@id/logout"
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="20dp"
+            android:text="服务开关:"
+            android:textColor="#000000"
+            android:textSize="20sp"/>
+
+        <Switch
+            android:id="@+id/switchON_off"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="false"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/welcome"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/layout_switch"
         android:layout_centerHorizontal="true"
-        android:onClick="refresh"
-        android:text="刷新状态"/>
+        android:layout_marginBottom="20dp"
+        android:text="欢迎使用！"
+        android:textSize="34sp"/>
 </RelativeLayout>

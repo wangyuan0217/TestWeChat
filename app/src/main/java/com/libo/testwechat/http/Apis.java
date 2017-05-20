@@ -65,12 +65,13 @@ public class Apis {
         new HttpApi().post(url, params, callback);
     }
 
-    public void end(String uid, String result, MyCallback callback) {
+    public void end(String uid, String period, String result, MyCallback callback) {
         String url = PRE_URL + "UserCenter/request_end";
 
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("uid", uid);
+            jsonObject.put("period", period);
             jsonObject.put("result", result);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -137,6 +138,57 @@ public class Apis {
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("uid", uid);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        HttpParams params = new HttpParams();
+        params.put(PARAM, jsonObject.toString());
+
+        new HttpApi().get(url, params, callback);
+    }
+
+    public void billList(String uid, int page, MyCallback callback) {
+        String url = PRE_URL + "UserCenter/User_Message";
+
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("uid", uid);
+            jsonObject.put("page", page);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        HttpParams params = new HttpParams();
+        params.put(PARAM, jsonObject.toString());
+
+        new HttpApi().get(url, params, callback);
+    }
+
+    public void history(String uid, int page, MyCallback callback) {
+        String url = PRE_URL + "UserCenter/History";
+
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("uid", uid);
+            jsonObject.put("page", page);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        HttpParams params = new HttpParams();
+        params.put(PARAM, jsonObject.toString());
+
+        new HttpApi().get(url, params, callback);
+    }
+
+    public void editMessage(String uid, String message, MyCallback callback) {
+        String url = PRE_URL + "UserCenter/Message";
+
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("uid", uid);
+            jsonObject.put("message", message);
         } catch (JSONException e) {
             e.printStackTrace();
         }

@@ -5,6 +5,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.provider.Settings;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
@@ -28,6 +29,29 @@ public class Utils {
         if (length < 3)
             return "";
         return returnStr.toString().substring(length - 2, length);
+    }
+
+    /**
+     * ======风云会演说家32: 2140377期：
+     * 02+07+01=10(小双)
+     * 近 10 期：
+     * 10 16 06 10 09 16 08 05 15 10
+     *
+     * @param content
+     * @return
+     */
+    public static String findPhase(String content) {
+        StringBuilder returnStr = new StringBuilder();
+        int index = content.indexOf(":");
+        for (int i = index + 1; i < content.length(); i++) {
+
+            String str = content.charAt(i) + "";
+            if (TextUtils.isEmpty(str)) continue;
+            if ("期".equals(str)) break;
+
+            returnStr.append(str);
+        }
+        return returnStr.toString();
     }
 
     public static String findBill(String key, String content) {

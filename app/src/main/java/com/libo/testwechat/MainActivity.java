@@ -95,6 +95,8 @@ public class MainActivity extends Activity {
                 PreferenceUtil.getInstance().put(Constant.UID, userInfo.getId());
                 PreferenceUtil.getInstance().put(Constant.BILL_NAME, userInfo.getBillname());
                 PreferenceUtil.getInstance().put(Constant.BALANCE, userInfo.getBalance());
+                PreferenceUtil.getInstance().put(Constant.MESSAGE, userInfo.getMessage());
+                PreferenceUtil.getInstance().put(Constant.USERNAME, userInfo.getUser_name());
 
                 Intent intent = new Intent(MainActivity.this, HomeActivity.class);
                 MainActivity.this.startActivity(intent);

@@ -17,7 +17,10 @@ public class Constant {
     public static final String UNAME = "username";
     public static final String PASSWORD = "password";
     public static final String BALANCE = "balance";
+    public static final String MESSAGE = "message";
+    public static final String USERNAME = "username";
 
     public static final String NEED_SOUND = "need_sound";
+    public static final String MESSAGE_FOR_WECHAT = "send_message";
 
 }
